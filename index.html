@@ -11,6 +11,8 @@
     }
     #list{
         width:1800px;
+        position:absolute;
+
     }
     #list img{
         height:450px;
@@ -26,8 +28,6 @@
     #buttons{
         position:absolute;
         bottom:5px;
-        height:30px;
-        width:120px;
         left:90px;
         z-index:1;
     }
@@ -74,24 +74,93 @@
     #prev{left:5px;}
     #next{right:5px;}
 
-
-    
 </style>
+
 <body>
 <div id="carousel">
-    <div id="list">
+    <div id="list" style="left:-300px">
         <img src="image/美女.jpg">
         <img src="image/eg.jpg">
         <img src="image/户外.jpg">
         <img src="image/清纯.jpg">
         <img src="image/美女.jpg">
         <img src="image/eg.jpg">
-        <div style="clear: both"></div>
+        <!--<div style="clear: both"></div>-->
     </div>
-    <div id="buttons"><span index="1" class="on"></span><span index="2"></span><span index="3"></span><span index="4"></span>
+    <div id="buttons"><span index="1" class="on"></span><span index="2"></span><span index="3"></span><span index="4"></span><div style="clear:both"></div>
     </div>
     <a href="javascript:void(0)" class="arrow" id="prev"><</a>
     <a href="javascript:void(0)" class="arrow" id="next">></a>
 </div>
 </body>
+<script>
+    window.onload = function() {
+        var next = document.getElementById("next");
+        var prev = document.getElementById("prev");
+        var buttons = document.getElementById("buttons").getElementsByTagName("span");
+        var list = document.getElementById("list");
+        var index = 1;
+
+        function showButton(){
+            for(var i = 0 ; i < buttons.length ; i ++){
+                if(buttons[i].className == 'on'){
+                    buttons[i].className = '';
+                    break;
+                }
+            }
+            buttons[index - 1].className = 'on';
+        }
+
+
+        function check(left){//检测是否显示图片越界
+            if(left<-1200) return '-300px';
+            if(left>-300) return '-1200px';
+            return left+'px';
+        }
+
+        function animate(offset) {//移动图片
+            var left = parseInt(list.style.left) + offset;
+            var time = 300;//位移时间
+            var interval = 10;//位移间隔
+            var speed = offset/(time/interval);
+
+            var go = function(){
+//                debugger;
+                if((speed < 0 && parseInt(list.style.left) > left) || (speed > 0 && parseInt(list.style.left) < left) ){
+                    list.style.left = parseInt(list.style.left) + speed + 'px';
+                    setTimeout(go , interval);
+                }
+                else{
+                    list.style.left = left + 'px';
+                    list.style.left = check(parseInt(left));
+                }
+            }
+            go();
+        }
+
+        prev.onclick = function(){
+            index -= 1;
+            if(index<1) index=4;
+            animate(300);
+            showButton();
+        }
+        next.onclick = function(){
+            index += 1;
+            if(index>4) index=1;
+            animate(-300);
+            showButton();
+        }
+
+        for(var i = 0 ; i < buttons.length ; i ++){
+            buttons[i].onclick = function(){
+                if(this.className == 'on') return;
+                var myIndex = parseInt(this.getAttribute("index"));
+                var offset = (myIndex - index) * -300;
+                index = myIndex;
+                animate(offset);
+                showButton();
+            }
+        }
+    }
+</script>
 </html>
